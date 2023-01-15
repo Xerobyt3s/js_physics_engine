@@ -1,0 +1,75 @@
+<html>
+    <script src="./simple.js">
+
+        //ball one
+        let ball1Pos = [300, 400]
+        let velocity1 = [0, 0]
+
+        //ball two
+        let ball2Pos = [600, 400]
+
+
+
+        let balldistance;
+
+        
+        function update() {
+            clearScreen();
+
+            circle(ball1Pos[0], ball1Pos[1], 40, "red");
+
+            circle(ball2Pos[0], ball2Pos[1], 40, "blue");
+
+            balldistance = distance(ball1Pos[0], ball1Pos[1], ball2Pos[0], ball2Pos[1]);
+
+            //update actual position acording to velocity
+            ball1Pos[0] += velocity1[0];
+            ball1Pos[1] += velocity1[1];
+
+
+            //friction system
+            if (velocity1[0] < 0 && !keyboard.a) {
+                if (velocity1[0] < -0.3){
+                    velocity1[0] += 0.2;
+                } else velocity1[0] = 0;
+            }
+            if (velocity1[0] > 0 && !keyboard.d) {
+                if (velocity1[0] > 0.3){
+                    velocity1[0] -= 0.2;
+                } else velocity1[0] = 0;
+            }
+            if (velocity1[1] > 0 && !keyboard.s) {
+                if (velocity1[1] > 0.3){
+                    velocity1[1] -= 0.2;
+                } else velocity1[1] = 0;
+            }
+            if (velocity1[1] < 0 && !keyboard.w) {
+                if (velocity1[1] < -0.3){
+                    velocity1[1] += 0.2;
+                } else velocity1[1] = 0;
+            }
+            
+
+            //acceleration
+            if (keyboard.w) {
+                velocity1[1] -= 0.2
+            }
+            if (keyboard.s) {
+                velocity1[1] += 0.2
+            }
+            if (keyboard.d) {
+                velocity1[0] += 0.2
+            }
+            if (keyboard.a) {
+                velocity1[0] -= 0.2
+            }
+
+            //collicion
+            if (balldistance < 80) {
+                
+            }
+            
+        }
+        
+    </script>
+</html>
