@@ -22,6 +22,20 @@ function friction(velocity) {
     }
 }
 
+function checkBallCollision(object1, object2) {
+    let Distance = distance(object1.position.x, object1.position.y, object2.position.x, object2.position.y);
+    if (Distance <= object1.radius + object2.radius) {
+        return object1.radius + object2.radius - Distance
+    } else {return 0}
+}
+
+function penetrationReselution(object1, object2) {
+    let distanceVector = object1.position.substraction(object2.position)
+    let penetrationRes = distanceVector.normalise().multiply(checkBallCollision(object1, object2)/2)
+    object1.position = object1.position.add(penetrationRes)
+    object2.position = object2.position.add(penetrationRes.multiply(-1))
+}
+
 //a class representing vectors and adds functions for vector operations
 class Vector {
     constructor(x, y) {
@@ -34,7 +48,7 @@ class Vector {
     }
 
     substraction(vector) {
-        return new Vector(thisx - vector.x, this.y - vector.y);
+        return new Vector(this.x - vector.x, this.y - vector.y);
     }
 
     magnitude() {
@@ -65,8 +79,8 @@ class Vector {
 
 class Ball {
     constructor(x, y) {
-        this.x = x
-        this.y = y
+        this.position = new Vector(x, y)
+        this.radius = 40
         this.velocity = new Vector(0, 0);
         this.acceleration = new Vector(0, 0);
         this.accelerationConstant = 0.2;
@@ -74,18 +88,18 @@ class Ball {
 
     }
 
-    draw(radius, color) {
-        circle(this.x, this.y, radius, color);
+    draw(color) {
+        circle(this.position.x, this.position.y, this.radius, color);
     }
 
     showAccelerationVector(multiplyer, thickness, color){
-        line(this.x, this.y, this.x + this.acceleration.x* multiplyer, this.y + this.acceleration.y* multiplyer, thickness, color)
+        line(this.position.x, this.position.y, this.position.x + this.acceleration.x* multiplyer, this.position.y + this.acceleration.y* multiplyer, thickness, color)
     }
 
     //update actual position acording to velocity
     updatePosition() {
-        this.x += this.velocity.x;
-        this.y += this.velocity.y;
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
     }
 
     //system for applying a force on the ball
@@ -106,38 +120,32 @@ class Ball {
         }
     }
 
+    
+
 }
 
 //ball one
 let ball1 = new Ball(300, 400)
 
 //ball two
-let ball2Pos = [600, 400]
-let velocity2 = new Vector(0, 0);
+let ball2 = new Ball(600, 400)
 
         
 function update() {
     clearScreen();
 
-
-    ball1.draw(40, "red")
-    ball1.velocity.displayVector(ball1.x, ball1.y, 20, 2, "blue")
+    ball1.draw("red")
+    ball1.velocity.displayVector(ball1.position.x, ball1.position.y, 20, 2, "blue")
     ball1.showAccelerationVector(500, 2, "green")
             
-    
-    circle(ball2Pos[0], ball2Pos[1], 40, "blue");
+    ball2.draw("blue")
 
-
+    friction(ball1.velocity)
+    ball1.movement();
     ball1.updatePosition();
 
-
-    //calls in friction function
-    friction(ball1.velocity)
-    friction(velocity2)
-
-    //acceleration
-    ball1.movement();
-
-               
+    if (checkBallCollision(ball1, ball2) > 0) {
+        penetrationReselution(ball1, ball2);
+    }
 }
         
