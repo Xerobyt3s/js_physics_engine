@@ -99,20 +99,19 @@ function update() {
 
     //acceleration
     acceleration = new Vector(0, 0);
-    notterminalvelocity = velocity1.magnitude() < maxspeed;
-    if (keyboard.w && notterminalvelocity) {
+    if (keyboard.w && velocity1.y > -maxspeed) {
         acceleration.y = -1
     }
-    if (keyboard.s && notterminalvelocity) {
+    if (keyboard.s && velocity1.y < maxspeed) {
         acceleration.y = 1
     }
     if (keyboard.w && keyboard.s) {
         acceleration.y = 0
     }
-    if (keyboard.d && notterminalvelocity) {
+    if (keyboard.d && velocity1.x < maxspeed) {
         acceleration.x = 1
     }
-    if (keyboard.a && notterminalvelocity) {
+    if (keyboard.a && velocity1.x > -maxspeed) {
         acceleration.x = -1
     }
     if (keyboard.d && keyboard.a) {
@@ -121,7 +120,10 @@ function update() {
     acceleration = acceleration.normalise()
     acceleration = acceleration.multiply(accelerationConstant)
     velocity1 = velocity1.add(acceleration)
-    console.log(velocity1, acceleration)
+    if (velocity1.magnitude() > maxspeed) {
+        velocity1 = velocity1.normalise().multiply(8)
+    }
+    console.log(velocity1)
 
 
     //collicion
