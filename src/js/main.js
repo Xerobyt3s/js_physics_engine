@@ -88,7 +88,8 @@ class Ball {
         this.y += this.velocity.y;
     }
 
-    acceleration() {
+    //system for applying a force on the ball
+    movement() {
         this.acceleration = new Vector(0, 0);
         if (keyboard.w && this.velocity.y > -this.maxspeed) {this.acceleration.y = -1}
         if (keyboard.s && this.velocity.y < this.maxspeed) {this.acceleration.y = 1}
@@ -96,9 +97,10 @@ class Ball {
         if (keyboard.d && this.velocity.x < this.maxspeed) {this.acceleration.x = 1}
         if (keyboard.a && this.velocity.x > -this.maxspeed) {this.acceleration.x = -1}
         if (keyboard.d && keyboard.a) {this.acceleration.x = 0}
+        //fixes the issue of the magnitude going over maxspeed in non cardinal directions by normalising the vectors
         this.acceleration = this.acceleration.normalise()
         this.acceleration = this.acceleration.multiply(this.accelerationConstant)
-        this.velocity = this.velocity.add(acceleration)
+        this.velocity = this.velocity.add(this.acceleration)
         if (this.velocity.magnitude() > this.maxspeed) {
             this.velocity = this.velocity.normalise().multiply(this.maxspeed)
         }
@@ -134,20 +136,7 @@ function update() {
     friction(velocity2)
 
     //acceleration
-    ball1.acceleration = new Vector(0, 0);
-    if (keyboard.w && ball1.velocity.y > -ball1.maxspeed) {ball1.acceleration.y = -1}
-    if (keyboard.s && ball1.velocity.y < ball1.maxspeed) {ball1.acceleration.y = 1}
-    if (keyboard.w && keyboard.s) {ball1.acceleration.y = 0}
-    if (keyboard.d && ball1.velocity.x < ball1.maxspeed) {ball1.acceleration.x = 1}
-    if (keyboard.a && ball1.velocity.x > -ball1.maxspeed) {ball1.acceleration.x = -1}
-    if (keyboard.d && keyboard.a) {ball1.acceleration.x = 0}
-    ball1.acceleration = ball1.acceleration.normalise()
-    ball1.acceleration = ball1.acceleration.multiply(ball1.accelerationConstant)
-    ball1.velocity = ball1.velocity.add(ball1.acceleration)
-    if (ball1.velocity.magnitude() > ball1.maxspeed) {
-        ball1.velocity = ball1.velocity.normalise().multiply(ball1.maxspeed)
-    }
-
+    ball1.movement();
 
                
 }
