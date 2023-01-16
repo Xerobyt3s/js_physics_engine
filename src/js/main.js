@@ -59,76 +59,96 @@ class Vector {
         line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color)
     }
 
+    
+
+}
+
+class Ball {
+    constructor(x, y) {
+        this.x = x
+        this.y = y
+        this.velocity = new Vector(0, 0);
+        this.acceleration = new Vector(0, 0);
+        this.accelerationConstant = 0.2;
+        this.maxspeed = 8;
+
+    }
+
+    draw(radius, color) {
+        circle(this.x, this.y, radius, color);
+    }
+
+    showAccelerationVector(multiplyer, thickness, color){
+        line(this.x, this.y, this.x + this.acceleration.x* multiplyer, this.y + this.acceleration.y* multiplyer, thickness, color)
+    }
+
+    //update actual position acording to velocity
+    updatePosition() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+    }
+
+    acceleration() {
+        this.acceleration = new Vector(0, 0);
+        if (keyboard.w && this.velocity.y > -this.maxspeed) {this.acceleration.y = -1}
+        if (keyboard.s && this.velocity.y < this.maxspeed) {this.acceleration.y = 1}
+        if (keyboard.w && keyboard.s) {this.acceleration.y = 0}
+        if (keyboard.d && this.velocity.x < this.maxspeed) {this.acceleration.x = 1}
+        if (keyboard.a && this.velocity.x > -this.maxspeed) {this.acceleration.x = -1}
+        if (keyboard.d && keyboard.a) {this.acceleration.x = 0}
+        this.acceleration = this.acceleration.normalise()
+        this.acceleration = this.acceleration.multiply(this.accelerationConstant)
+        this.velocity = this.velocity.add(acceleration)
+        if (this.velocity.magnitude() > this.maxspeed) {
+            this.velocity = this.velocity.normalise().multiply(this.maxspeed)
+        }
+    }
+
 }
 
 //ball one
-let ball1Pos = [300, 400]
-let velocity1 = new Vector(0, 0);
-let acceleration = new Vector(0, 0);
-let accelerationConstant = 0.2
-let maxspeed = 8;
-let notterminalvelocity = false;
+let ball1 = new Ball(300, 400)
 
 //ball two
 let ball2Pos = [600, 400]
 let velocity2 = new Vector(0, 0);
-
-
-let balldistance;
 
         
 function update() {
     clearScreen();
 
 
-    circle(ball1Pos[0], ball1Pos[1], 40, "red");
-    velocity1.displayVector(ball1Pos[0], ball1Pos[1], 10, 2, "black")
+    ball1.draw(40, "red")
+    ball1.velocity.displayVector(ball1.x, ball1.y, 20, 2, "blue")
+    ball1.showAccelerationVector(500, 2, "green")
             
+    
     circle(ball2Pos[0], ball2Pos[1], 40, "blue");
 
-    balldistance = distance(ball1Pos[0], ball1Pos[1], ball2Pos[0], ball2Pos[1]);
 
-    //update actual position acording to velocity
-    ball1Pos[0] += velocity1.x;
-    ball1Pos[1] += velocity1.y;
+    ball1.updatePosition();
 
 
     //calls in friction function
-    friction(velocity1)
+    friction(ball1.velocity)
     friction(velocity2)
 
     //acceleration
-    acceleration = new Vector(0, 0);
-    if (keyboard.w && velocity1.y > -maxspeed) {
-        acceleration.y = -1
+    ball1.acceleration = new Vector(0, 0);
+    if (keyboard.w && ball1.velocity.y > -ball1.maxspeed) {ball1.acceleration.y = -1}
+    if (keyboard.s && ball1.velocity.y < ball1.maxspeed) {ball1.acceleration.y = 1}
+    if (keyboard.w && keyboard.s) {ball1.acceleration.y = 0}
+    if (keyboard.d && ball1.velocity.x < ball1.maxspeed) {ball1.acceleration.x = 1}
+    if (keyboard.a && ball1.velocity.x > -ball1.maxspeed) {ball1.acceleration.x = -1}
+    if (keyboard.d && keyboard.a) {ball1.acceleration.x = 0}
+    ball1.acceleration = ball1.acceleration.normalise()
+    ball1.acceleration = ball1.acceleration.multiply(ball1.accelerationConstant)
+    ball1.velocity = ball1.velocity.add(ball1.acceleration)
+    if (ball1.velocity.magnitude() > ball1.maxspeed) {
+        ball1.velocity = ball1.velocity.normalise().multiply(ball1.maxspeed)
     }
-    if (keyboard.s && velocity1.y < maxspeed) {
-        acceleration.y = 1
-    }
-    if (keyboard.w && keyboard.s) {
-        acceleration.y = 0
-    }
-    if (keyboard.d && velocity1.x < maxspeed) {
-        acceleration.x = 1
-    }
-    if (keyboard.a && velocity1.x > -maxspeed) {
-        acceleration.x = -1
-    }
-    if (keyboard.d && keyboard.a) {
-        acceleration.x = 0
-    }
-    acceleration = acceleration.normalise()
-    acceleration = acceleration.multiply(accelerationConstant)
-    velocity1 = velocity1.add(acceleration)
-    if (velocity1.magnitude() > maxspeed) {
-        velocity1 = velocity1.normalise().multiply(8)
-    }
-    console.log(velocity1)
 
 
-    //collicion
-    if (balldistance < 80) {
-                
-    }            
+               
 }
         
