@@ -4,25 +4,25 @@
 
         //a function that reduces velocity over time
         function friction(velocity) {
-            if (velocity[0] < 0 && !keyboard.a) {
-                if (velocity[0] < -0.3){
-                    velocity[0] += 0.2;
-                } else velocity[0] = 0;
+            if (velocity.x < 0 && !keyboard.a) {
+                if (velocity.x < -0.3){
+                    velocity.x += 0.2;
+                } else velocity.x = 0;
             }
-            if (velocity[0] > 0 && !keyboard.d) {
-                if (velocity[0] > 0.3){
-                    velocity[0] -= 0.2;
-                } else velocity[0] = 0;
+            if (velocity.x > 0 && !keyboard.d) {
+                if (velocity.x > 0.3){
+                    velocity.x -= 0.2;
+                } else velocity.x = 0;
             }
-            if (velocity[1] > 0 && !keyboard.s) {
-                if (velocity[1] > 0.3){
-                    velocity[1] -= 0.2;
-                } else velocity[1] = 0;
+            if (velocity.y > 0 && !keyboard.s) {
+                if (velocity.y > 0.3){
+                    velocity.y -= 0.2;
+                } else velocity.y = 0;
             }
-            if (velocity[1] < 0 && !keyboard.w) {
-                if (velocity[1] < -0.3){
-                    velocity[1] += 0.2;
-                } else velocity[1] = 0;
+            if (velocity.y < 0 && !keyboard.w) {
+                if (velocity.y < -0.3){
+                    velocity.y += 0.2;
+                } else velocity.y = 0;
             }
         }
 
@@ -49,7 +49,7 @@
                 return new Vector(this.x * multiplyer, this.y * multiplyer);
             }
 
-            
+
 
         }
 
@@ -57,11 +57,11 @@
 
         //ball one
         let ball1Pos = [300, 400]
-        let velocity1 = [0, 0]
+        let velocity1 = new Vector(0, 0);
 
         //ball two
         let ball2Pos = [600, 400]
-        let velocity2 = [0, 0]
+        let velocity2 = new Vector(0, 0);
 
 
         let balldistance;
@@ -71,15 +71,17 @@
             clearScreen();
 
             circle(ball1Pos[0], ball1Pos[1], 40, "red");
-            line(ball1Pos[0], ball1Pos[1], ball1Pos[0] + velocity1[0]* 10, ball1Pos[1] + velocity1[1]* 10, 3, "black")
+
+            //this line is temporary and is just so i can see the velocity vector while testing
+            line(ball1Pos[0], ball1Pos[1], ball1Pos[0] + velocity1.x* 10, ball1Pos[1] + velocity1.y* 10, 3, "black")
             
             circle(ball2Pos[0], ball2Pos[1], 40, "blue");
 
             balldistance = distance(ball1Pos[0], ball1Pos[1], ball2Pos[0], ball2Pos[1]);
 
             //update actual position acording to velocity
-            ball1Pos[0] += velocity1[0];
-            ball1Pos[1] += velocity1[1];
+            ball1Pos[0] += velocity1.x;
+            ball1Pos[1] += velocity1.y;
 
 
             //calls in friction function
@@ -87,17 +89,17 @@
             friction(velocity2)
 
             //acceleration
-            if (keyboard.w && velocity1[1] > -8) {
-                velocity1[1] -= 0.2
+            if (keyboard.w && velocity1.y > -8) {
+                velocity1.y -= 0.2
             }
-            if (keyboard.s && velocity1[1] < 8) {
-                velocity1[1] += 0.2
+            if (keyboard.s && velocity1.y < 8) {
+                velocity1.y += 0.2
             }
-            if (keyboard.d && velocity1[0] < 8) {
-                velocity1[0] += 0.2
+            if (keyboard.d && velocity1.x < 8) {
+                velocity1.x += 0.2
             }
-            if (keyboard.a && velocity1[0] > -8) {
-                velocity1[0] -= 0.2
+            if (keyboard.a && velocity1.x > -8) {
+                velocity1.x -= 0.2
             }
 
             //collicion
