@@ -49,15 +49,23 @@
                 return new Vector(this.x * multiplyer, this.y * multiplyer);
             }
 
+            unify() {
+                if (this.magnitude = 0) { return new Vector(0, 0)} else
+                return new Vector(this.x/this.magnitude(), this.y/this.magnitude());
+            }
 
+            //displayes the vector from a costom origo for trubbleshooting purposes
+            displayVector(pos_x, pos_y, multiplyer, thickness, color) {
+                line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color)
+            }
 
         }
-
-
 
         //ball one
         let ball1Pos = [300, 400]
         let velocity1 = new Vector(0, 0);
+        let acceleration = new Vector(0, 0);
+        let accelerationConstant = 0.2
 
         //ball two
         let ball2Pos = [600, 400]
@@ -71,9 +79,7 @@
             clearScreen();
 
             circle(ball1Pos[0], ball1Pos[1], 40, "red");
-
-            //this line is temporary and is just so i can see the velocity vector while testing
-            line(ball1Pos[0], ball1Pos[1], ball1Pos[0] + velocity1.x* 10, ball1Pos[1] + velocity1.y* 10, 3, "black")
+            velocity1.displayVector(ball1Pos[0], ball1Pos[1], 10, 2, "black")
             
             circle(ball2Pos[0], ball2Pos[1], 40, "blue");
 
@@ -90,17 +96,20 @@
 
             //acceleration
             if (keyboard.w && velocity1.y > -8) {
-                velocity1.y -= 0.2
+                velocity1.y -= accelerationConstant
             }
             if (keyboard.s && velocity1.y < 8) {
-                velocity1.y += 0.2
+                velocity1.y += accelerationConstant
             }
             if (keyboard.d && velocity1.x < 8) {
-                velocity1.x += 0.2
+                velocity1.x += accelerationConstant
             }
             if (keyboard.a && velocity1.x > -8) {
-                velocity1.x -= 0.2
+                velocity1.x -= accelerationConstant
             }
+
+            
+
 
             //collicion
             if (balldistance < 80) {
