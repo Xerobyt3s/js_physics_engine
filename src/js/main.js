@@ -1,23 +1,24 @@
 //a function that reduces velocity over time
 function friction(velocity) {
-    if (velocity.x < 0 && !keyboard.a) {
-        if (velocity.x < -0.3){
-            velocity.x += 0.2;
+    let frictionConstant = 0.1;
+    if (velocity.x < 0) {
+        if (velocity.x < -0.2){
+            velocity.x += frictionConstant;
         } else velocity.x = 0;
     }
-    if (velocity.x > 0 && !keyboard.d) {
-        if (velocity.x > 0.3){
-            velocity.x -= 0.2;
+    if (velocity.x > 0) {
+        if (velocity.x > 0.2){
+            velocity.x -= frictionConstant;
         } else velocity.x = 0;
     }
-    if (velocity.y > 0 && !keyboard.s) {
-        if (velocity.y > 0.3){
-            velocity.y -= 0.2;
+    if (velocity.y > 0) {
+        if (velocity.y > 0.2){
+            velocity.y -= frictionConstant;
         } else velocity.y = 0;
     }
-    if (velocity.y < 0 && !keyboard.w) {
-        if (velocity.y < -0.3){
-            velocity.y += 0.2;
+    if (velocity.y < 0) {
+        if (velocity.y < -0.2){
+            velocity.y += frictionConstant;
         } else velocity.y = 0;
     }
 }
@@ -83,7 +84,7 @@ class Ball {
         this.radius = 40
         this.velocity = new Vector(0, 0);
         this.acceleration = new Vector(0, 0);
-        this.accelerationConstant = 0.2;
+        this.accelerationConstant = 0.3;
         this.maxspeed = 8;
 
     }
