@@ -41,8 +41,8 @@ function elasticCollision(object1, object2) {
     if (object1 instanceof Ball && object2 instanceof Ball) {
         let distanceVector = object1.position.substraction(object2.position);
         if (distanceVector.magnitude() <= object1.radius + object2.radius) {
-            if (checkBallCollision(ball1, ball2) > 0) {
-                penetrationReselution(ball1, ball2);
+            if (checkBallCollision(object1, object2) > 0) {
+                penetrationReselution(object1, object2);
             }
             let relativeVelocity = object1.velocity.substraction(object2.velocity);
             let seperatingVelocity = Vector.dot(relativeVelocity, distanceVector.normalise())
