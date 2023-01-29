@@ -86,7 +86,6 @@ class Vector {
         }
     }
                 
-
     //displayes the vector from a costom origo for trubbleshooting purposes
     displayVector(pos_x, pos_y, multiplyer, thickness, color) {
         line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color)
@@ -95,7 +94,6 @@ class Vector {
     static dot(vector1, vector2){
         return vector1.x*vector2.x + vector1.y*vector2.y;
     }
-
 }
 
 class Ball {
@@ -140,9 +138,6 @@ class Ball {
             this.velocity = this.velocity.normalise().multiply(this.maxspeed)
         }
     }
-
-    
-
 }
 
 //ball one
@@ -151,7 +146,6 @@ let ball1 = new Ball(300, 400, 40, 10)
 //ball two
 let ball2 = new Ball(600, 400, 40, 7)
 
-        
 function update() {
     clearScreen();
 
