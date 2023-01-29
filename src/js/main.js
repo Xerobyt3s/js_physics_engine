@@ -37,6 +37,24 @@ function penetrationReselution(object1, object2) {
     object2.position = object2.position.add(penetrationRes.multiply(-1))
 }
 
+function elasticCollision(object1, object2) {
+    if (object1 instanceof Ball && object2 instanceof Ball) {
+        let distanceVector = object1.position.substraction(object2.position);
+        if (distanceVector.magnitude() <= object1.radius + object2.radius) {
+            if (checkBallCollision(ball1, ball2) > 0) {
+                penetrationReselution(ball1, ball2);
+            }
+            let relativeVelocity = object1.velocity.substraction(object2.velocity);
+            let seperatingVelocity = Vector.dot(relativeVelocity, distanceVector.normalise())
+            let new_seperatingVelocity = -seperatingVelocity
+            let seperatingVelocityVector = distanceVector.normalise().multiply(new_seperatingVelocity)
+
+            object1.velocity = object1.velocity.add(seperatingVelocityVector)
+            object2.velocity = object2.velocity.add(seperatingVelocityVector.multiply(-1))
+        }
+    }
+}
+
 //a class representing vectors and adds functions for vector operations
 class Vector {
     constructor(x, y) {
@@ -74,19 +92,21 @@ class Vector {
         line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color)
     }
 
-    
+    static dot(vector1, vector2){
+        return vector1.x*vector2.x + vector1.y*vector2.y;
+    }
 
 }
 
 class Ball {
-    constructor(x, y) {
+    constructor(x, y, radius, mass) {
         this.position = new Vector(x, y)
-        this.radius = 40
+        this.radius = radius
         this.velocity = new Vector(0, 0);
         this.acceleration = new Vector(0, 0);
         this.accelerationConstant = 0.3;
         this.maxspeed = 8;
-
+        this.mass = mass
     }
 
     draw(color) {
@@ -126,10 +146,10 @@ class Ball {
 }
 
 //ball one
-let ball1 = new Ball(300, 400)
+let ball1 = new Ball(300, 400, 40, 10)
 
 //ball two
-let ball2 = new Ball(600, 400)
+let ball2 = new Ball(600, 400, 40, 7)
 
         
 function update() {
@@ -145,8 +165,9 @@ function update() {
     ball1.movement();
     ball1.updatePosition();
 
-    if (checkBallCollision(ball1, ball2) > 0) {
-        penetrationReselution(ball1, ball2);
-    }
+    friction(ball2.velocity)
+    ball2.updatePosition();
+
+    elasticCollision(ball1, ball2)
 }
         
