@@ -1,56 +1,49 @@
-//a function that reduces velocity over time
-function friction(velocity) {
-    let frictionConstant = 0.1;
-    if (velocity.x < 0) {
-        if (velocity.x < -0.2){
-            velocity.x += frictionConstant;
-        } else velocity.x = 0;
-    }
-    if (velocity.x > 0) {
-        if (velocity.x > 0.2){
-            velocity.x -= frictionConstant;
-        } else velocity.x = 0;
-    }
-    if (velocity.y > 0) {
-        if (velocity.y > 0.2){
-            velocity.y -= frictionConstant;
-        } else velocity.y = 0;
-    }
-    if (velocity.y < 0) {
-        if (velocity.y < -0.2){
-            velocity.y += frictionConstant;
-        } else velocity.y = 0;
-    }
+let timeLastFrame = Date.now();
+let deltatime = 0;
+
+
+//proportionally reduces velocity to simulate friction
+function friction(object) {
+    object.velocity = object.velocity.deltaTimeAdd(object.velocity.multiply(-2));
 }
 
-function checkBallCollision(object1, object2) {
+//gets the number of pixels two objects have moved into each other between frames
+function getPentrationDepth(object1, object2) {
     let Distance = distance(object1.position.x, object1.position.y, object2.position.x, object2.position.y);
     if (Distance <= object1.radius + object2.radius) {
-        return object1.radius + object2.radius - Distance
+        return object1.radius + object2.radius - Distance;
     } else {return 0}
 }
 
-function penetrationReselution(object1, object2) {
-    let distanceVector = object1.position.substraction(object2.position)
-    let penetrationRes = distanceVector.normalise().multiply(checkBallCollision(object1, object2)/2)
-    object1.position = object1.position.add(penetrationRes)
-    object2.position = object2.position.add(penetrationRes.multiply(-1))
+//moves the two objects away from each other along the collision normal so they no longer overlap
+function overlapOffset(object1, object2) {
+    let distanceVector = object1.position.substraction(object2.position);
+    let penetrationRes = distanceVector.normalise().multiply(getPentrationDepth(object1, object2)/2);
+    object1.position = object1.position.add(penetrationRes);
+    object2.position = object2.position.add(penetrationRes.multiply(-1));
 }
 
+//simulates elastic collision
 function elasticCollision(object1, object2) {
+
+    //checks if the collision is between two balls
     if (object1 instanceof Ball && object2 instanceof Ball) {
         let distanceVector = object1.position.substraction(object2.position);
         if (distanceVector.magnitude() <= object1.radius + object2.radius) {
-            if (checkBallCollision(object1, object2) > 0) {
-                penetrationReselution(object1, object2);
-            }
-            let relativeVelocity = object1.velocity.substraction(object2.velocity);
-            let seperatingVelocity = Vector.dot(relativeVelocity, distanceVector.normalise())
-            let new_seperatingVelocity = -seperatingVelocity
-            let seperatingVelocityVector = distanceVector.normalise().multiply(new_seperatingVelocity)
 
-            object1.velocity = object1.velocity.add(seperatingVelocityVector)
-            object2.velocity = object2.velocity.add(seperatingVelocityVector.multiply(-1))
+            //avoids dividing 0 in the overlap function and calls it
+            if (getPentrationDepth(object1, object2) != 0) {
+                overlapOffset(object1, object2);
+            }
+
+            //gets the dot product of the balls velocity along the normal of the collision and swaps them between the balls 
+            let relativeVelocity = object1.velocity.substraction(object2.velocity);
+            let seperatingVelocity = Vector.dot(relativeVelocity, distanceVector.normalise());
+            let new_seperatingVelocity = -seperatingVelocity;
+            let seperatingVelocityVector = distanceVector.normalise().multiply(new_seperatingVelocity);
+
+            object1.velocity = object1.velocity.add(seperatingVelocityVector);
+            object2.velocity = object2.velocity.add(seperatingVelocityVector.multiply(-1));
         }
     }
 }
@@ -80,7 +73,7 @@ class Vector {
 
     normalise() {
         if (this.magnitude() === 0) { 
-            return new Vector(0, 0)
+            return new Vector(0, 0);
         } else {
             return new Vector(this.x/this.magnitude(), this.y/this.magnitude());
         }
@@ -88,23 +81,30 @@ class Vector {
                 
     //displayes the vector from a costom origo for trubbleshooting purposes
     displayVector(pos_x, pos_y, multiplyer, thickness, color) {
-        line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color)
+        line(pos_x, pos_y, pos_x + this.x* multiplyer, pos_y + this.y* multiplyer, thickness, color);
     }
 
+    //gets the dot product
     static dot(vector1, vector2){
         return vector1.x*vector2.x + vector1.y*vector2.y;
     }
+
+    //adds to vectors but takes deltaTime into a count
+    deltaTimeAdd(vector) {
+        return new Vector(this.x + vector.x * deltatime, this.y + vector.y * deltatime);
+    }
+
 }
 
 class Ball {
     constructor(x, y, radius, mass) {
-        this.position = new Vector(x, y)
-        this.radius = radius
+        this.position = new Vector(x, y);
+        this.radius = radius;
         this.velocity = new Vector(0, 0);
         this.acceleration = new Vector(0, 0);
         this.accelerationConstant = 0.3;
         this.maxspeed = 8;
-        this.mass = mass
+        this.mass = mass;
     }
 
     draw(color) {
@@ -112,7 +112,7 @@ class Ball {
     }
 
     showAccelerationVector(multiplyer, thickness, color){
-        line(this.position.x, this.position.y, this.position.x + this.acceleration.x* multiplyer, this.position.y + this.acceleration.y* multiplyer, thickness, color)
+        line(this.position.x, this.position.y, this.position.x + this.acceleration.x* multiplyer, this.position.y + this.acceleration.y* multiplyer, thickness, color);
     }
 
     //update actual position acording to velocity
@@ -123,45 +123,52 @@ class Ball {
 
     //system for applying a force on the ball
     movement() {
+        //checks what way to be accelerating acording to the keyboard
         this.acceleration = new Vector(0, 0);
         if (keyboard.w && this.velocity.y > -this.maxspeed) {this.acceleration.y = -1}
-        if (keyboard.s && this.velocity.y < this.maxspeed) {this.acceleration.y = 1}
-        if (keyboard.w && keyboard.s) {this.acceleration.y = 0}
-        if (keyboard.d && this.velocity.x < this.maxspeed) {this.acceleration.x = 1}
+        if (keyboard.s && this.velocity.y <  this.maxspeed) {this.acceleration.y =  1}
+        if (keyboard.d && this.velocity.x <  this.maxspeed) {this.acceleration.x =  1}
         if (keyboard.a && this.velocity.x > -this.maxspeed) {this.acceleration.x = -1}
+
+        if (keyboard.w && keyboard.s) {this.acceleration.y = 0}
         if (keyboard.d && keyboard.a) {this.acceleration.x = 0}
+
         //fixes the issue of the magnitude going over maxspeed in non cardinal directions by normalising the vectors
-        this.acceleration = this.acceleration.normalise()
-        this.acceleration = this.acceleration.multiply(this.accelerationConstant)
-        this.velocity = this.velocity.add(this.acceleration)
+        this.acceleration = this.acceleration.normalise();
+        this.acceleration = this.acceleration.multiply(this.accelerationConstant); //multiplying the acceleration direction with the amount to accelerate
+        this.velocity = this.velocity.add(this.acceleration);
+
+        //stops velocity from going over max speed
         if (this.velocity.magnitude() > this.maxspeed) {
-            this.velocity = this.velocity.normalise().multiply(this.maxspeed)
+            this.velocity = this.velocity.normalise().multiply(this.maxspeed);
         }
     }
 }
 
 //ball one
-let ball1 = new Ball(300, 400, 40, 10)
+let ball1 = new Ball(300, 400, 40, 10);
 
 //ball two
-let ball2 = new Ball(600, 400, 40, 7)
+let ball2 = new Ball(600, 400, 40, 7);
 
 function update() {
     clearScreen();
+    deltatime = (Date.now() - timeLastFrame)/1000;
+    timeLastFrame = Date.now();
 
-    ball1.draw("red")
-    ball1.velocity.displayVector(ball1.position.x, ball1.position.y, 20, 2, "blue")
-    ball1.showAccelerationVector(500, 2, "green")
+    ball1.draw("red");
+    ball1.velocity.displayVector(ball1.position.x, ball1.position.y, 20, 2, "blue");
+    ball1.showAccelerationVector(500, 2, "green");
             
-    ball2.draw("blue")
+    ball2.draw("blue");
 
-    friction(ball1.velocity)
+    friction(ball1);
     ball1.movement();
     ball1.updatePosition();
 
-    friction(ball2.velocity)
+    friction(ball2);
     ball2.updatePosition();
 
-    elasticCollision(ball1, ball2)
+    elasticCollision(ball1, ball2);
 }
         
