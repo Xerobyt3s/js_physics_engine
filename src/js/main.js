@@ -18,9 +18,9 @@ function getPentrationDepth(object1, object2) {
 //moves the two objects away from each other along the collision normal so they no longer overlap
 function overlapOffset(object1, object2) {
     let distanceVector = object1.position.substraction(object2.position);
-    let penetrationRes = distanceVector.normalise().multiply(getPentrationDepth(object1, object2)/2);
-    object1.position = object1.position.add(penetrationRes);
-    object2.position = object2.position.add(penetrationRes.multiply(-1));
+    let penetrationRes = distanceVector.normalise().multiply(getPentrationDepth(object1, object2)/(object1.inverseMass + object2.inverseMass));
+    object1.position = object1.position.add(penetrationRes.multiply(object1.inverseMass));
+    object2.position = object2.position.add(penetrationRes.multiply(-object2.inverseMass));
 }
 
 //simulates elastic collision
@@ -40,10 +40,14 @@ function elasticCollision(object1, object2) {
             let relativeVelocity = object1.velocity.substraction(object2.velocity);
             let seperatingVelocity = Vector.dot(relativeVelocity, distanceVector.normalise());
             let new_seperatingVelocity = -seperatingVelocity;
-            let seperatingVelocityVector = distanceVector.normalise().multiply(new_seperatingVelocity);
 
-            object1.velocity = object1.velocity.add(seperatingVelocityVector);
-            object2.velocity = object2.velocity.add(seperatingVelocityVector.multiply(-1));
+            //taking mass into the ecvation
+            let seperatingVelocityDiffrence = new_seperatingVelocity - seperatingVelocity
+            let impulse = seperatingVelocityDiffrence/(object1.inverseMass + object2.inverseMass)
+            let impulseVector = distanceVector.normalise().multiply(impulse);
+
+            object1.velocity = object1.velocity.add(impulseVector.multiply(object1.inverseMass));
+            object2.velocity = object2.velocity.add(impulseVector.multiply(-object2.inverseMass));
         }
     }
 }
@@ -105,6 +109,11 @@ class Ball {
         this.accelerationConstant = 0.3;
         this.maxspeed = 8;
         this.mass = mass;
+        if (this.mass === 0) {
+            this.inverseMass = 0;
+        } else {
+            this.inverseMass = 1/this.mass;
+        }
     }
 
     draw(color) {
