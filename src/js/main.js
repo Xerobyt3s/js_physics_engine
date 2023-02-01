@@ -42,8 +42,8 @@ function elasticCollision(object1, object2) {
             let new_seperatingVelocity = -seperatingVelocity;
 
             //taking mass into the ecvation
-            let seperatingVelocityDiffrence = new_seperatingVelocity - seperatingVelocity
-            let impulse = seperatingVelocityDiffrence/(object1.inverseMass + object2.inverseMass)
+            let seperatingVelocityDiffrence = new_seperatingVelocity - seperatingVelocity;
+            let impulse = seperatingVelocityDiffrence/(object1.inverseMass + object2.inverseMass);
             let impulseVector = distanceVector.normalise().multiply(impulse);
 
             object1.velocity = object1.velocity.add(impulseVector.multiply(object1.inverseMass));
@@ -152,6 +152,26 @@ class Ball {
             this.velocity = this.velocity.normalise().multiply(this.maxspeed);
         }
     }
+}
+
+class Wall {
+    constructor(x1, y1, x2, y2, mass, thickness) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
+        this.thickness = thickness
+        this.mass = mass;
+        if (this.mass = 0) {
+            this.inverseMass = 0;
+        } else {this.inverseMass = 1/this.mass;}
+    }
+
+    draw() {
+        line(this.x1, this.y1, this.x2, this.y2, this.thickness, "black")
+    }
+
+
 }
 
 //ball one
