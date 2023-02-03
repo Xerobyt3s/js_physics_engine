@@ -49,6 +49,18 @@ function elasticCollision(object1, object2) {
             object1.velocity = object1.velocity.add(impulseVector.multiply(object1.inverseMass));
             object2.velocity = object2.velocity.add(impulseVector.multiply(-object2.inverseMass));
         }
+    } else if (object1 instanceof Ball && object2 instanceof Wall) {
+        let messureDistance = object1.position.substraction(object2.pos1)
+        let lineLenght = object2.pos2.substraction(object2.pos1)
+        let lineLenght2 = lineLenght.pow(2)
+
+        let Dot = Vector.dot(messureDistance, lineLenght)
+
+        let t = Dot / lineLenght2
+
+        let closestPoint = new Vector()
+
+
     }
 }
 
@@ -73,6 +85,10 @@ class Vector {
 
     multiply(multiplyer) {
         return new Vector(this.x * multiplyer, this.y * multiplyer);
+    }
+
+    pow(exponent) {
+        return new Vector(this.x ** exponent, this.y ** exponent)
     }
 
     normalise() {
@@ -156,10 +172,8 @@ class Ball {
 
 class Wall {
     constructor(x1, y1, x2, y2, mass, thickness) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
+        this.pos1 = new Vector(x1, y1)
+        this.pos2 = new Vector(x2, y2)
         this.thickness = thickness
         this.mass = mass;
         if (this.mass = 0) {
@@ -168,7 +182,7 @@ class Wall {
     }
 
     draw() {
-        line(this.x1, this.y1, this.x2, this.y2, this.thickness, "black")
+        line(this.pos1.x, this.pos1.y, this.pos2.x, this.pos2.y, this.thickness, "black")
     }
 
 
@@ -180,6 +194,8 @@ let ball1 = new Ball(300, 400, 40, 10);
 //ball two
 let ball2 = new Ball(600, 400, 40, 7);
 
+let wall1 = new Wall(200, 300, 200, 500, 0, 3 )
+
 function update() {
     clearScreen();
     deltatime = (Date.now() - timeLastFrame)/1000;
@@ -190,6 +206,7 @@ function update() {
     ball1.showAccelerationVector(500, 2, "green");
             
     ball2.draw("blue");
+    wall1.draw()
 
     friction(ball1);
     ball1.movement();
@@ -199,5 +216,6 @@ function update() {
     ball2.updatePosition();
 
     elasticCollision(ball1, ball2);
+    elasticCollision(ball1, wall1)
 }
         
