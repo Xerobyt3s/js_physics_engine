@@ -23,6 +23,25 @@ function overlapOffset(object1, object2) {
     object2.position = object2.position.add(penetrationRes.multiply(-object2.inverseMass));
 }
 
+//function skapad av markus
+function distanceToLineSegment(p1, p2, q) {
+	let u = p2.substraction(p1);
+	let v = q.substraction(p1);
+
+	let dotProduct = Vector.dot(u, v);
+	let uLengthSquared = Vector.dot(u, u);
+	let t = dotProduct / uLengthSquared;
+
+	if (t < 0) {
+		return q.substraction(p1).magnitude();
+	} else if (t > 1) {
+		return q.substraction(p2).magnitude();
+	} else {
+		let projection = p1.add(u.multiply(t));
+		return q.substraction(projection).magnitude();
+	}
+}
+
 //simulates elastic collision
 function elasticCollision(object1, object2) {
 
@@ -50,15 +69,9 @@ function elasticCollision(object1, object2) {
             object2.velocity = object2.velocity.add(impulseVector.multiply(-object2.inverseMass));
         }
     } else if (object1 instanceof Ball && object2 instanceof Wall) {
-        let messureDistance = object1.position.substraction(object2.pos1)
-        let lineLenght = object2.pos2.substraction(object2.pos1)
-        let lineLenght2 = lineLenght.pow(2)
-
-        let Dot = Vector.dot(messureDistance, lineLenght)
-
-        let t = Dot / lineLenght2
-
-        let closestPoint = new Vector()
+        if (distanceToLineSegment(object2.pos1, object2.pos2, object1.position) < object1.radius + object2.thickness) {
+            console.log("wall collision")
+        }
 
 
     }
