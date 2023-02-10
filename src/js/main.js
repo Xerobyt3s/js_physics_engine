@@ -24,7 +24,7 @@ function overlapOffset(object1, object2) {
 }
 
 //function skapad av markus
-function distanceToLineSegment(p1, p2, q) {
+function distanceToLineSegment(p1, p2, q, returnPoint) {
 	let u = p2.substraction(p1);
 	let v = q.substraction(p1);
 
@@ -32,14 +32,25 @@ function distanceToLineSegment(p1, p2, q) {
 	let uLengthSquared = Vector.dot(u, u);
 	let t = dotProduct / uLengthSquared;
 
-	if (t < 0) {
-		return q.substraction(p1).magnitude();
-	} else if (t > 1) {
-		return q.substraction(p2).magnitude();
-	} else {
-		let projection = p1.add(u.multiply(t));
-		return q.substraction(projection).magnitude();
-	}
+    if(returnPoint == false) {
+        if (t < 0) {
+            return q.substraction(p1).magnitude();
+        } else if (t > 1) {
+            return q.substraction(p2).magnitude();
+        } else {
+            let projection = p1.add(u.multiply(t));
+            return q.substraction(projection).magnitude();
+        }
+    } else if (returnPoint == true) {
+        if (t < 0) {
+            return p1
+        } else if (t > 1) {
+            return p2;
+        } else {
+            return p1.add(u.multiply(t));
+        }
+    }
+	
 }
 
 //simulates elastic collision
@@ -69,8 +80,12 @@ function elasticCollision(object1, object2) {
             object2.velocity = object2.velocity.add(impulseVector.multiply(-object2.inverseMass));
         }
     } else if (object1 instanceof Ball && object2 instanceof Wall) {
-        if (distanceToLineSegment(object2.pos1, object2.pos2, object1.position) < object1.radius + object2.thickness) {
+        let penetrationDepth = distanceToLineSegment(object2.pos1, object2.pos2, object1.position, false)
+        if (penetrationDepth < object1.radius + object2.thickness) {
             console.log("wall collision")
+            let distanceVector = object1.position.substraction(distanceToLineSegment(object2.pos1, object2.pos2, object1.position, true))
+            let penetrationRes = distanceVector.normalise().multiply(object1.radius + object2.thickness - penetrationDepth)
+            object1.position = object1.position.add(penetrationRes);
         }
 
 
@@ -182,6 +197,30 @@ class Ball {
         }
     }
 }
+
+/*
+class Square {
+    constructor(x, y, hight, width, angle) {
+        this.position = new Vector(x, y);
+        //uses trig rotation och the hight and width to calculate the 4 corners 
+        this.ap1 = new Vector(this.position - width/2, this.position + hight/2)
+        this.ap2 = new Vector(this.position + width/2, this.position + hight/2)
+        this.ap3 = new Vector(this.position - width/2, this.position - hight/2)
+        this.ap4 = new Vector(this.position + width/2, this.position - hight/2)
+        this.angle = angle;
+        this.p1 = new Vector(this.ap1.x * Math.cos(this.angle) - this.ap1.y * Math.sin(this.angle), this.ap1.x * Math.sin(this.angle) + this.ap1.y * Math.cos(this.angle))
+        this.p2 = new Vector(this.ap2.x * Math.cos(this.angle) - this.ap2.y * Math.sin(this.angle), this.ap2.x * Math.sin(this.angle) + this.ap2.y * Math.cos(this.angle))
+        this.p3 = new Vector(this.ap3.x * Math.cos(this.angle) - this.ap3.y * Math.sin(this.angle), this.ap3.x * Math.sin(this.angle) + this.ap3.y * Math.cos(this.angle))
+        this.p4 = new Vector(this.ap4.x * Math.cos(this.angle) - this.ap4.y * Math.sin(this.angle), this.ap4.x * Math.sin(this.angle) + this.ap4.y * Math.cos(this.angle))
+    }
+    draw() {
+        line(this.ap1.x, this.ap1.y, this.ap2.x, this.ap2.y, 1, "black")
+        line(this.ap2.x, this.ap2.y, this.ap4.x, this.ap4.y, 1, "black")
+        line(this.ap4.x, this.ap4.y, this.ap3.x, this.ap3.y, 1, "black")
+        line(this.ap3.x, this.ap3.y, this.ap1.x, this.ap1.y, 1, "black")
+    }
+}
+*/
 
 class Wall {
     constructor(x1, y1, x2, y2, mass, thickness) {
