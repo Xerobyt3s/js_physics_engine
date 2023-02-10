@@ -82,7 +82,6 @@ function elasticCollision(object1, object2) {
     } else if (object1 instanceof Ball && object2 instanceof Wall) {
         let penetrationDepth = distanceToLineSegment(object2.pos1, object2.pos2, object1.position, false)
         if (penetrationDepth < object1.radius + object2.thickness) {
-            console.log("wall collision")
             let distanceVector = object1.position.substraction(distanceToLineSegment(object2.pos1, object2.pos2, object1.position, true))
             let penetrationRes = distanceVector.normalise().multiply(object1.radius + object2.thickness - penetrationDepth)
             object1.position = object1.position.add(penetrationRes);
@@ -198,29 +197,66 @@ class Ball {
     }
 }
 
-/*
+
 class Square {
     constructor(x, y, hight, width, angle) {
         this.position = new Vector(x, y);
-        //uses trig rotation och the hight and width to calculate the 4 corners 
-        this.ap1 = new Vector(this.position - width/2, this.position + hight/2)
-        this.ap2 = new Vector(this.position + width/2, this.position + hight/2)
-        this.ap3 = new Vector(this.position - width/2, this.position - hight/2)
-        this.ap4 = new Vector(this.position + width/2, this.position - hight/2)
         this.angle = angle;
-        this.p1 = new Vector(this.ap1.x * Math.cos(this.angle) - this.ap1.y * Math.sin(this.angle), this.ap1.x * Math.sin(this.angle) + this.ap1.y * Math.cos(this.angle))
-        this.p2 = new Vector(this.ap2.x * Math.cos(this.angle) - this.ap2.y * Math.sin(this.angle), this.ap2.x * Math.sin(this.angle) + this.ap2.y * Math.cos(this.angle))
-        this.p3 = new Vector(this.ap3.x * Math.cos(this.angle) - this.ap3.y * Math.sin(this.angle), this.ap3.x * Math.sin(this.angle) + this.ap3.y * Math.cos(this.angle))
-        this.p4 = new Vector(this.ap4.x * Math.cos(this.angle) - this.ap4.y * Math.sin(this.angle), this.ap4.x * Math.sin(this.angle) + this.ap4.y * Math.cos(this.angle))
+        this.radians = this.angle * Math.PI / 180;
+        this.velocity = new Vector(0, 0)
+
+        //uses trig rotation och the hight and width to calculate the 4 corners 
+        this.tempP1 = new Vector(-width/2, hight/2)
+        this.tempP2 = new Vector(width/2, hight/2)
+        this.tempP3 = new Vector(-width/2, -hight/2)
+        this.tempP4 = new Vector(width/2, -hight/2)
+
+        this.p1 = this.position.add(new Vector(this.tempP1.x * Math.cos(this.radians) - this.tempP1.y * Math.sin(this.radians), this.tempP1.x * Math.sin(this.radians) + this.tempP1.y * Math.cos(this.radians)))
+        this.p2 = this.position.add(new Vector(this.tempP2.x * Math.cos(this.radians) - this.tempP2.y * Math.sin(this.radians), this.tempP2.x * Math.sin(this.radians) + this.tempP2.y * Math.cos(this.radians)))
+        this.p3 = this.position.add(new Vector(this.tempP3.x * Math.cos(this.radians) - this.tempP3.y * Math.sin(this.radians), this.tempP3.x * Math.sin(this.radians) + this.tempP3.y * Math.cos(this.radians)))
+        this.p4 = this.position.add(new Vector(this.tempP4.x * Math.cos(this.radians) - this.tempP4.y * Math.sin(this.radians), this.tempP4.x * Math.sin(this.radians) + this.tempP4.y * Math.cos(this.radians)))
     }
+
     draw() {
-        line(this.ap1.x, this.ap1.y, this.ap2.x, this.ap2.y, 1, "black")
-        line(this.ap2.x, this.ap2.y, this.ap4.x, this.ap4.y, 1, "black")
-        line(this.ap4.x, this.ap4.y, this.ap3.x, this.ap3.y, 1, "black")
-        line(this.ap3.x, this.ap3.y, this.ap1.x, this.ap1.y, 1, "black")
+        line(this.p1.x, this.p1.y, this.p2.x, this.p2.y, 1, "black")
+        line(this.p2.x, this.p2.y, this.p4.x, this.p4.y, 1, "black")
+        line(this.p4.x, this.p4.y, this.p3.x, this.p3.y, 1, "black")
+        line(this.p3.x, this.p3.y, this.p1.x, this.p1.y, 1, "black")
     }
+
+    rotation() {
+        //ensures angle stays within 360 degrees
+        if (this.angle < 0) {
+            this.angle += 360
+        } else if (this.angle > 360){
+            this.angle -= 360 
+        }
+
+        this.radians = this.angle * Math.PI / 180;
+
+        //updates rotation
+        this.p1 = this.position.add(new Vector(this.tempP1.x * Math.cos(this.radians) - this.tempP1.y * Math.sin(this.radians), this.tempP1.x * Math.sin(this.radians) + this.tempP1.y * Math.cos(this.radians)))
+        this.p2 = this.position.add(new Vector(this.tempP2.x * Math.cos(this.radians) - this.tempP2.y * Math.sin(this.radians), this.tempP2.x * Math.sin(this.radians) + this.tempP2.y * Math.cos(this.radians)))
+        this.p3 = this.position.add(new Vector(this.tempP3.x * Math.cos(this.radians) - this.tempP3.y * Math.sin(this.radians), this.tempP3.x * Math.sin(this.radians) + this.tempP3.y * Math.cos(this.radians)))
+        this.p4 = this.position.add(new Vector(this.tempP4.x * Math.cos(this.radians) - this.tempP4.y * Math.sin(this.radians), this.tempP4.x * Math.sin(this.radians) + this.tempP4.y * Math.cos(this.radians)))
+        
+    }
+
+    updatePosition() {
+        //updates the position acording to velocity
+        this.position = this.position.add(this.velocity)
+    }
+
+    //automaticaly calls all physics related functions for easier integration
+    simulate() {
+        this.rotation()
+
+        this.updatePosition()
+
+        friction(this)
+    }
+
 }
-*/
 
 class Wall {
     constructor(x1, y1, x2, y2, mass, thickness) {
@@ -248,6 +284,9 @@ let ball2 = new Ball(600, 400, 40, 7);
 
 let wall1 = new Wall(200, 300, 200, 500, 0, 3 )
 
+let box1 = new Square(300, 600, 100, 100, 0)
+
+
 function update() {
     clearScreen();
     deltatime = (Date.now() - timeLastFrame)/1000;
@@ -269,5 +308,10 @@ function update() {
 
     elasticCollision(ball1, ball2);
     elasticCollision(ball1, wall1)
+
+    box1.draw();
+
+    box1.angle += 1;
+    box1.simulate();
 }
         
